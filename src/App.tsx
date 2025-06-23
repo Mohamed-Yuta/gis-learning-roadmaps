@@ -6,6 +6,7 @@ import { RoadmapView } from './components/RoadmapView';
 import { roadmapsData } from './data';
 import type { Progress, ProgressStatus, RoadmapNode } from './types';
 import './index.css';
+import { Analytics } from '@vercel/analytics/react'; // <-- 1. IMPORT ANALYTICS
 
 // Define a key for localStorage to avoid typos
 const LOCAL_STORAGE_KEY = 'gisRoadmapProgress';
@@ -33,21 +34,25 @@ const App: React.FC = () => {
   const [zoomLevel, setZoomLevel] = useState(1);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
 
-  // This effect runs only once on mount to initialize progress if it's empty.
+  // This effect runs only once on mount to initialize or sync progress.
   useEffect(() => {
-    // If the progress object is empty, it means this is a first-time visit.
-    if (Object.keys(progress).length === 0) {
-      console.log("No saved progress found, initializing for the first time.");
-      const initialProgress: { [roadmapId: string]: Progress } = {};
+    setProgress(currentProgress => {
+      let needsUpdate = false;
+      const newProgress = { ...currentProgress };
+
       roadmapsData.forEach(roadmap => {
-        initialProgress[roadmap.id] = {};
-        roadmap.nodes.forEach(node => {
-          initialProgress[roadmap.id][node.id] = 'not-started';
-        });
+        if (!newProgress[roadmap.id]) {
+          needsUpdate = true;
+          newProgress[roadmap.id] = {};
+          roadmap.nodes.forEach(node => {
+            newProgress[roadmap.id][node.id] = 'not-started';
+          });
+        }
       });
-      setProgress(initialProgress);
-    }
-  }, []); // <-- Empty dependency array ensures this runs only once
+
+      return needsUpdate ? newProgress : currentProgress;
+    });
+  }, []);
 
   // This effect runs whenever the 'progress' state changes, saving it to localStorage.
   useEffect(() => {
@@ -59,7 +64,7 @@ const App: React.FC = () => {
         console.error("Failed to save progress to localStorage", error);
       }
     }
-  }, [progress]); // <-- This effect is triggered by any change to 'progress'
+  }, [progress]);
 
   const updateProgress = (roadmapId: string, nodeId: string, status: ProgressStatus) => {
     setProgress(prev => ({
@@ -107,6 +112,8 @@ const App: React.FC = () => {
           getProgressStats={getProgressStats}
         />
       )}
+      
+      <Analytics /> {/* <-- 2. ADD THE COMPONENT HERE */}
     </div>
   );
 };
