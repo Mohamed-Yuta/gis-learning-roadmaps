@@ -5,7 +5,7 @@ import { Clock, CheckCircle, Eye, Circle } from 'lucide-react';
 // This import will now work because you've updated types.ts
 import type { Roadmap, RoadmapNode, Progress, ProgressStatus, Resource, ResourceType } from '../types';
 // This import will now work because you've created ResourceCard.tsx
-import { ResourceCard } from './resourceCard';
+import { ResourceCard } from './ResourceCard';
 // This import is needed to search for prerequisites across all roadmaps
 import { roadmapsData } from '../data';
 
