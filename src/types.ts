@@ -1,3 +1,5 @@
+// src/types.ts
+
 export interface RoadmapNode {
   id: string;
   title: string;
@@ -30,11 +32,4 @@ export type ProgressStatus = 'not-started' | 'learning' | 'completed' | 'skipped
 
 export interface Progress {
   [nodeId: string]: ProgressStatus;
-}
-
-export interface ProgressStats {
-  total: number;
-  completed: number;
-  learning: number;
-  percentage: number;
 }
